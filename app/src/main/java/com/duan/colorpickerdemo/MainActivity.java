@@ -19,6 +19,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ColorPickerView picker = (ColorPickerView) findViewById(R.id.colorPickerView);
+        picker.setIndicatorColor(Color.GREEN);
+        picker.setOrientation(ColorPickerView.Orientation.HORIZONTAL);
+        picker.setColors(Color.DKGRAY,Color.RED,Color.WHITE);
+        picker.setOnColorPickerChangeListener(new ColorPickerView.OnColorPickerChangeListener() {
+            @Override
+            public void onColorChanged(ColorPickerView picker, int color) {
+                // TODO
+            }
+
+            @Override
+            public void onStartTrackingTouch(ColorPickerView picker) {
+                // TODO
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(ColorPickerView picker) {
+                // TODO
+
+            }
+        });
+
+
         final View show = findViewById(R.id.show);
         final TextView argb = (TextView) findViewById(R.id.textView);
         final ColorPickerView center = (ColorPickerView) findViewById(R.id.colorPickerView);

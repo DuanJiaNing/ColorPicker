@@ -40,6 +40,7 @@
         android:layout_marginRight="50dp"
         android:layout_marginTop="50dp"
         app:indicatorEnable="true"
+        app:indicatorColor="#fff"
         app:orientation="vertical" />
 
     <com.duan.colorpicker.ColorPickerView
