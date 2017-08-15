@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.duan.colorpickerdemo.MainActivity">
+
+    <com.duan.colorpicker.ColorPickerView
+        android:id="@+id/picker1"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:background="#ffffff"
+        app:indicatorColor="#ffffff"
+        app:indicatorEnable="true"
+        app:orientation="horizontal" />
+
+    <com.duan.colorpicker.ColorPickerView
+        android:id="@+id/picker"
+        android:layout_width="110dp"
+        android:layout_height="400dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="0dp"
+        app:indicatorColor="#e2e2e2"
+        app:indicatorEnable="true"
+        app:orientation="vertical" />
+
+    <com.duan.colorpicker.ColorPickerView
+        android:id="@+id/colorPickerView2"
+        android:layout_width="50dp"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="50dp"
+        app:indicatorEnable="true"
+        app:orientation="vertical" />
+
+    <com.duan.colorpicker.ColorPickerView
+        android:id="@+id/colorPickerView3"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/picker1"
+        app:indicatorColor="#ffffff"
+        app:orientation="horizontal" />
+
+    <com.duan.colorpicker.ColorPickerView
+        android:id="@+id/colorPickerView"
+        android:layout_width="160dp"
+        android:layout_height="500dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="8dp"
+        app:indicatorColor="#e2e2e2"
+        app:indicatorEnable="false"
+        app:orientation="vertical" />
+
+    <View
+        android:id="@+id/show"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#ed0f0f" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/show"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:gravity="center"
+        android:paddingBottom="5dp"
+        android:text="a:  r:  g:  b:" />
+
+</RelativeLayout>
