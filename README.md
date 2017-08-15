@@ -68,3 +68,4 @@ vertical 竖直
         }
 ...
 ```
+实现分析可参看博文：[ Android 自定义 View - 颜色选取器（水平、竖直）](http://blog.csdn.net/aimeimeiTS/article/details/77162143)

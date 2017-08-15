@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -173,13 +172,8 @@ public class ColorPickerView extends View {
             height = getSuggestedMinimumHeight() + getPaddingTop() + getPaddingBottom();
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            width = Math.max(width, orientation == Orientation.HORIZONTAL ? defaultSizeLong : defaultSizeShort);
-            height = Math.max(height, orientation == Orientation.HORIZONTAL ? defaultSizeShort : defaultSizeLong);
-        } else {
-            width = Math.max(width, widthSize);
-            height = Math.max(height, heightSize);
-        }
+        width = Math.max(width, orientation == Orientation.HORIZONTAL ? defaultSizeLong : defaultSizeShort);
+        height = Math.max(height, orientation == Orientation.HORIZONTAL ? defaultSizeShort : defaultSizeLong);
 
         setMeasuredDimension(width, height);
 
@@ -200,6 +194,8 @@ public class ColorPickerView extends View {
         calculBounds();
         setColors(createDefaultColorTable());
         createBitmap();
+
+        // onLayout 可能被重复调用，此时位图被重置，所以指示点也要重绘
         needReDrawIndicator = true;
     }
 
@@ -340,9 +336,6 @@ public class ColorPickerView extends View {
             createColorTableBitmap();
         }
         // 绘制颜色条
-        paint.setColor(Color.BLACK);
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setStrokeWidth(3);
         canvas.drawBitmap(bitmapForColor, null, rect, paint);
 
         if (mIndicatorEnable) {
