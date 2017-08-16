@@ -10,6 +10,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -98,6 +100,10 @@ public class ColorPickerView extends View {
      */
     private int curX, curY;
 
+    private int[] colors = null;
+
+    private int currentColor;
+
     /**
      * 控件方向
      */
@@ -126,6 +132,8 @@ public class ColorPickerView extends View {
 
         paintForIndicator = new Paint();
         paintForIndicator.setAntiAlias(true);
+
+        curX = curY = Integer.MAX_VALUE;
     }
 
     public ColorPickerView(Context context) {
@@ -176,27 +184,33 @@ public class ColorPickerView extends View {
         height = Math.max(height, orientation == Orientation.HORIZONTAL ? defaultSizeShort : defaultSizeLong);
 
         setMeasuredDimension(width, height);
-
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-
         mTop = getPaddingTop();
         mLeft = getPaddingLeft();
         mBottom = getMeasuredHeight() - getPaddingBottom();
         mRight = getMeasuredWidth() - getPaddingRight();
 
-        curX = getWidth() / 2;
-        curY = getHeight() / 2;
+        if (curX == curY || curY == Integer.MAX_VALUE) {
+            curX = getWidth() / 2;
+            curY = getHeight() / 2;
+        }
 
         calculBounds();
-        setColors(createDefaultColorTable());
+        if (colors == null) {
+            setColors(createDefaultColorTable());
+        } else {
+            setColors(colors);
+        }
         createBitmap();
 
-        // onLayout 可能被重复调用，此时位图被重置，所以指示点也要重绘
-        needReDrawIndicator = true;
+        if (mIndicatorEnable) {
+            needReDrawIndicator = true;
+        }
+
     }
 
     private void createBitmap() {
@@ -292,6 +306,7 @@ public class ColorPickerView extends View {
      */
     public void setColors(int... colors) {
         linearGradient = null;
+        this.colors = colors;
 
         if (orientation == Orientation.HORIZONTAL) {
             linearGradient = new LinearGradient(
@@ -390,14 +405,8 @@ public class ColorPickerView extends View {
         int ex = (int) event.getX();
         int ey = (int) event.getY();
 
-        if (orientation == Orientation.HORIZONTAL) {
-            if (ex <= mLeft + mRadius || ex >= mRight - mRadius) {
-                return true;
-            }
-        } else {
-            if (ey <= mTop + mRadius || ey >= mBottom - mRadius) {
-                return true;
-            }
+        if (!inBoundOfColorTable(ex, ey)) {
+            return true;
         }
 
         if (orientation == Orientation.HORIZONTAL) {
@@ -411,18 +420,21 @@ public class ColorPickerView extends View {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             if (colorPickerChangeListener != null) {
                 colorPickerChangeListener.onStartTrackingTouch(this);
-                colorChange();
+                calcuColor();
+                colorPickerChangeListener.onColorChanged(this, currentColor);
             }
 
         } else if (event.getActionMasked() == MotionEvent.ACTION_UP) { //手抬起
             if (colorPickerChangeListener != null) {
                 colorPickerChangeListener.onStopTrackingTouch(this);
-                colorChange();
+                calcuColor();
+                colorPickerChangeListener.onColorChanged(this, currentColor);
             }
 
         } else { //按着+拖拽
             if (colorPickerChangeListener != null) {
-                colorChange();
+                calcuColor();
+                colorPickerChangeListener.onColorChanged(this, currentColor);
             }
         }
 
@@ -430,7 +442,29 @@ public class ColorPickerView extends View {
         return true;
     }
 
-    private void colorChange() {
+    /**
+     * 获得当前指示点所指颜色
+     *
+     * @return 颜色值
+     */
+    public int getColor() {
+        return calcuColor();
+    }
+
+    private boolean inBoundOfColorTable(int ex, int ey) {
+        if (orientation == Orientation.HORIZONTAL) {
+            if (ex <= mLeft + mRadius || ex >= mRight - mRadius) {
+                return false;
+            }
+        } else {
+            if (ey <= mTop + mRadius || ey >= mBottom - mRadius) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int calcuColor() {
         int x, y;
         if (orientation == Orientation.HORIZONTAL) { // 水平
             y = (rect.bottom - rect.top) / 2;
@@ -452,8 +486,8 @@ public class ColorPickerView extends View {
             }
         }
         int pixel = bitmapForColor.getPixel(x, y);
-        int color = pixelToColor(pixel);
-        colorPickerChangeListener.onColorChanged(this, color);
+        currentColor = pixelToColor(pixel);
+        return currentColor;
     }
 
     private int pixelToColor(int pixel) {
@@ -496,6 +530,77 @@ public class ColorPickerView extends View {
          */
         void onStopTrackingTouch(ColorPickerView picker);
     }
+
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable parcelable = super.onSaveInstanceState();
+        SavedState ss = new SavedState(parcelable);
+        ss.selX = curX;
+        ss.selY = curY;
+        ss.color = bitmapForColor;
+        if (mIndicatorEnable) {
+            ss.indicator = bitmapForIndicator;
+        }
+        return ss;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+        SavedState ss = (SavedState) state;
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        curX = ss.selX;
+        curY = ss.selY;
+        colors = ss.colors;
+
+        bitmapForColor = ss.color;
+        if (mIndicatorEnable) {
+            bitmapForIndicator = ss.indicator;
+            needReDrawIndicator = true;
+        }
+        needReDrawColorTable = true;
+
+    }
+
+    private class SavedState extends BaseSavedState {
+        int selX, selY;
+        int[] colors;
+        Bitmap color;
+        Bitmap indicator = null;
+
+        public SavedState(Parcelable source) {
+            super(source);
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeInt(selX);
+            out.writeInt(selY);
+            out.writeParcelable(color, flags);
+            out.writeIntArray(colors);
+            if (indicator != null) {
+                out.writeParcelable(indicator, flags);
+            }
+        }
+    }
+
+    public void setPosition(int x, int y) {
+        if (inBoundOfColorTable(x, y)) {
+            curX = x;
+            curY = y;
+            if (mIndicatorEnable) {
+                needReDrawIndicator = true;
+            }
+            invalidate();
+        }
+    }
+
 
     /**
      * 显示默认的颜色选择器

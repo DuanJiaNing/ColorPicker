@@ -69,3 +69,9 @@ vertical 竖直
 ...
 ```
 实现分析可参看博文：[ Android 自定义 View - 颜色选取器（水平、竖直）](http://blog.csdn.net/aimeimeiTS/article/details/77162143)
+
+2017-08-16
+
+1 修复 onLayout 重复执行时指示点位置重置和颜色条重置的错误<br>
+2 添加 getColor 方法以获取当前指示点所指的颜色<br>
+3 覆写 onRestoreInstanceState 和 onSaveInstanceState 方法，使能够在屏幕旋转时保存状态<br>
