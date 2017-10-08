@@ -573,7 +573,7 @@ public class ColorPickerView extends View {
         Bitmap color;
         Bitmap indicator = null;
 
-        public SavedState(Parcelable source) {
+        SavedState(Parcelable source) {
             super(source);
         }
 
