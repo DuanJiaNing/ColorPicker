@@ -310,16 +310,16 @@ public class ColorPickerView extends View {
 
         if (orientation == Orientation.HORIZONTAL) {
             linearGradient = new LinearGradient(
-                    rect.left, rect.top,
-                    rect.right, rect.top,
+                    0, 0,
+                    rect.width(), 0p,
                     colors,
                     null,
                     Shader.TileMode.CLAMP
             );
         } else {
             linearGradient = new LinearGradient(
-                    rect.left, rect.top,
-                    rect.left, rect.bottom,
+                    0, 0,
+                    0, rect.height(),
                     colors,
                     null,
                     Shader.TileMode.CLAMP
